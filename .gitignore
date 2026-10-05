@@ -3,3 +3,5 @@ node_modules/
 .dev.vars
 *.local.*
 .DS_Store
+.venv/
+scripts/.cache/
