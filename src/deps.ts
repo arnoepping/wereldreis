@@ -1,5 +1,7 @@
 import type { Env } from "./env";
-import type { EnrichResult } from "./enrich";
+import { enrichClient, type EnrichResult } from "./enrich";
+import { climateClient } from "./climate";
+import { linkPreviewClient } from "./link-preview";
 import type { MonthTemp } from "./logic/weather";
 import { telegramApi, type TelegramApi } from "./telegram/api";
 
@@ -12,12 +14,11 @@ export interface Deps {
 }
 
 export function productionDeps(env: Env): Deps {
-  const notYet = () => Promise.reject(new Error("not implemented yet"));
   return {
     telegram: telegramApi(env.TELEGRAM_BOT_TOKEN),
-    enrich: notYet,
-    climate: notYet,
-    linkPreview: () => Promise.resolve(null),
+    enrich: enrichClient(env.ANTHROPIC_API_KEY),
+    climate: climateClient(),
+    linkPreview: linkPreviewClient(),
     now: () => new Date(),
   };
 }
