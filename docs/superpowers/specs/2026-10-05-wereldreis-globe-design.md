@@ -45,12 +45,12 @@ The repository is **public and open source**. It contains **no personal data**: 
 
 ## 4. Architecture
 
-Code lives in a **public GitHub repository**. Everything runs on **Cloudflare's free tier**, which deploys automatically from GitHub on every push to `main`.
+Code lives in a **public GitHub repository**. Everything runs on **Cloudflare's free tier** as **one Worker that serves both the static globe app and the API** on the same address, deployed automatically from GitHub (Workers Builds) on every push to `main`.
 
 ```
 Telegram (both travellers) ──► Telegram Bot API ──webhook──► Worker  /telegram
                                                                │
-Phone / laptop ──► Cloudflare Access (email code) ──► Pages: globe app
+Phone / laptop ──► Cloudflare Access (email code) ──► Worker static assets: globe app
                                                        │  fetch /api/*
                                                        ▼
                                                      Worker /api ──► D1 database
@@ -62,8 +62,8 @@ Phone / laptop ──► Cloudflare Access (email code) ──► Pages: globe a
 
 | Part | Technology | Responsibility |
 |---|---|---|
-| Globe app | Static site on Cloudflare Pages; MapLibre GL JS (globe projection) | All UI. Talks only to `/api`. |
-| API + bot | One Cloudflare Worker (TypeScript), routed on the same hostname under `/api/*` and `/telegram` | REST API, Telegram webhook, enrichment, notifications. |
+| Globe app | Static files served by the Worker (assets); MapLibre GL JS (globe projection), plain ES modules, no build step | All UI. Talks only to `/api`. |
+| API + bot | The same Worker (TypeScript, Hono router) handles `/api/*` and `/telegram` | REST API, Telegram webhook, enrichment, notifications. |
 | Database | Cloudflare D1 (SQLite) | Users, ideas, ratings, notes, settings. |
 | Photos | Cloudflare R2 | Photos sent to the bot. |
 | Login | Cloudflare Access, one-time email code | Only the two allowed email addresses reach the app and `/api`. The Worker reads the verified email from the Access JWT and looks it up in `users`. |
@@ -73,12 +73,15 @@ Phone / laptop ──► Cloudflare Access (email code) ──► Pages: globe a
 **Repository layout**
 
 ```
-app/        globe front-end (static HTML/JS/CSS, map data, relief tiles)
-worker/     Cloudflare Worker: api/, telegram/, enrich/, db/ (schema + migrations)
-docs/       specs, plans, setup guide
+app/         globe front-end (static HTML/JS/CSS, map data, relief tiles)
+src/         Worker: API, Telegram bot, enrichment, climate, pure logic
+migrations/  D1 schema
+test/        Vitest tests (run inside the Workers runtime)
+scripts/     map-data build script, setup script
+docs/        specs, plans, setup guide
 ```
 
-**Running cost:** hosting €0. Claude API usage under €1 a month at the expected volume (tens of ideas a month). Optional custom domain about €10 a year; otherwise the free `*.pages.dev` / `*.workers.dev` addresses.
+**Running cost:** hosting €0. Claude API usage under €1 a month at the expected volume (tens of ideas a month). Optional custom domain about €10 a year; otherwise the free `*.workers.dev` address.
 
 **One-time setup by the travellers** (with a step-by-step guide in `docs/setup.md`):
 1. Create a free Cloudflare account and connect it to the GitHub repository.
@@ -137,6 +140,9 @@ notes    (id INTEGER PRIMARY KEY,
 
 settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)
           -- 'departure_date' (YYYY-MM-DD), 'budget_eur', 'flight_reserve_eur'
+
+pending  (telegram_id INTEGER PRIMARY KEY,   -- open clarifying question per traveller
+          original TEXT NOT NULL, question TEXT NOT NULL, created_at TEXT NOT NULL)
 ```
 
 ## 7. Best months
@@ -225,7 +231,9 @@ DELETE /api/ideas/:id
 PUT    /api/ideas/:id/rating        → { stars }
 GET    /api/notes?idea=:id | ?country=:iso
 POST   /api/notes                   → { idea_id | country_iso, body }  (triggers ping)
-GET    /api/settings  · PATCH /api/settings
+GET    /api/settings  · PATCH /api/settings   (also traveller display names)
+GET    /api/budget                  → budget check (§12)
+GET    /api/photos/:key             → photo from R2
 POST   /telegram                    → webhook (not behind Access; secret-token checked)
 ```
 
@@ -243,5 +251,5 @@ POST   /telegram                    → webhook (not behind Access; secret-token
 
 ## 16. Open points (decide during planning, not blocking)
 
-- Custom domain, or the free `*.pages.dev` address.
+- Custom domain, or the free `*.workers.dev` address.
 - Where exactly the relief cross-fades into satellite.
