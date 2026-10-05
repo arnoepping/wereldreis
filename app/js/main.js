@@ -4,6 +4,8 @@ import { loadCountries } from "./geo.js";
 import { createGlobe } from "./globe.js";
 import { hooks, renderPanel } from "./panel.js";
 import { isPhone, toast } from "./util.js";
+import { renderCard } from "./card.js";
+import { openAdd, openBudget, openCountryNotes, openLink, openSettings, setOpenIdea } from "./forms.js";
 
 let globe;
 
@@ -59,6 +61,16 @@ async function boot() {
     });
     hooks.onNavigate = navigate;
     hooks.onOpenIdea = openIdea;
+    hooks.renderCard = renderCard;
+    setOpenIdea(openIdea);
+    hooks.onAction = (action) => {
+      if (action === "add") openAdd();
+      else if (action === "budget") openBudget();
+      else if (action === "settings") openSettings();
+      else if (action === "link") openLink();
+      else if (action === "country-notes") openCountryNotes(state.view.iso);
+    };
+    subscribe(() => globe.setIdeas(state.ideas));
     subscribe(() => { renderPanel(); renderSub(); });
     renderPanel();
     renderSub();
