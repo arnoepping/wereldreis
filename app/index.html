@@ -1,1 +1,33 @@
-<!doctype html><title>Wereldreis</title><p>Coming soon.</p>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Wereldreis</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Ccircle cx=%228%22 cy=%228%22 r=%227%22 fill=%22%234f8fc0%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Figtree:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="app">
+    <div id="map" role="application" aria-label="Globe of trip ideas"></div>
+    <div class="loading" id="loading">LOADING THE WORLD…</div>
+    <header class="top">
+      <div class="brand"><h1>Wereldreis</h1><span class="sub" id="sub"></span></div>
+      <nav class="crumbs" id="crumbs" aria-label="Zoom level"></nav>
+    </header>
+    <div class="toast" id="toast" role="status" hidden></div>
+    <aside class="panel" id="panel">
+      <button class="grab" id="grab" aria-label="Expand or collapse the panel"><span></span></button>
+      <div class="panel-head" id="head"></div>
+      <div class="panel-body" id="body"></div>
+      <div class="credit">Relief: Natural Earth · Satellite: Sentinel-2 cloudless 2024 by EOX, contains modified Copernicus Sentinel data</div>
+    </aside>
+    <dialog id="dialog"></dialog>
+  </div>
+  <script src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
