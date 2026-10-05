@@ -16,7 +16,7 @@ export function linkPreviewClient(fetchFn: typeof fetch = fetch) {
   return async (url: string): Promise<string | null> => {
     try {
       const res = await fetchFn(url, {
-        signal: AbortSignal.timeout(5000),
+        signal: AbortSignal.timeout(3000),
         headers: { "user-agent": "Mozilla/5.0 (compatible; WereldreisBot/1.0)" },
       });
       if (!res.ok) return null;

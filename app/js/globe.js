@@ -200,7 +200,9 @@ export function createGlobe(container, { countriesGeo, byIso, onNavigate, onOpen
       if (selected != null) setSelected(selected);
     },
     go(next) {
-      const changed = next.level !== view.level || next.cont !== view.cont || next.iso !== view.iso;
+      // Going "back to the world" must zoom out even if we never left world level (e.g. after an idea at sea).
+      const changed = next.level !== view.level || next.cont !== view.cont || next.iso !== view.iso
+        || (next.level === "world" && next.ideaId == null && map.getZoom() > 3);
       Object.assign(view, { level: next.level, cont: next.cont, iso: next.iso });
       setSelected(next.ideaId ?? null);
       if (!changed) return;

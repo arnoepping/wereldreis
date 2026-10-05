@@ -65,8 +65,8 @@ describe("viewRatings", () => {
   it("reveals the other rating once I rated", () => {
     expect(viewRatings({ a: 3, b: 5 }, "a", "b")).toEqual({ mine: 3, other: 5, otherHidden: false });
   });
-  it("is not hidden when nobody rated", () => {
-    expect(viewRatings({}, "a", "b")).toEqual({ mine: null, other: null, otherHidden: false });
+  it("stays hidden before I rate even when the other has not rated (spec §8)", () => {
+    expect(viewRatings({}, "a", "b")).toEqual({ mine: null, other: null, otherHidden: true });
   });
 });
 

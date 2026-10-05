@@ -3,7 +3,7 @@ import { state, update, subscribe } from "./state.js";
 import { loadCountries } from "./geo.js";
 import { createGlobe } from "./globe.js";
 import { hooks, renderPanel } from "./panel.js";
-import { isPhone, toast } from "./util.js";
+import { esc, isPhone, toast } from "./util.js";
 import { renderCard } from "./card.js";
 import { openAdd, openBudget, openCountryNotes, openLink, openSettings, setOpenIdea } from "./forms.js";
 
@@ -36,7 +36,8 @@ function renderSub() {
   if (!dep) { sub.textContent = ""; return; }
   const days = Math.ceil((new Date(`${dep}T00:00:00`) - new Date()) / 86_400_000);
   const date = new Date(`${dep}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-  sub.innerHTML = days > 0 ? `${state.me.name} &amp; ${state.other.name} · departure ${date} · <b>${days.toLocaleString("en-GB")}</b> days to go` : `${state.me.name} &amp; ${state.other.name} · on the road`;
+  const names = `${esc(state.me.name)} &amp; ${esc(state.other.name)}`;
+  sub.innerHTML = days > 0 ? `${names} · departure ${esc(date)} · <b>${days.toLocaleString("en-GB")}</b> days to go` : `${names} · on the road`;
 }
 
 function routeFromHash() {

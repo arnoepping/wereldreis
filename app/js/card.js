@@ -18,7 +18,7 @@ function starsRow(label, value, onPick) {
 function otherStars(idea) {
   const name = esc(state.other.name);
   const r = idea.ratings;
-  if (r.otherHidden) return el(`<div class="stars"><span class="who-lbl">${name}</span><span class="hint">Rate it to see ${name}'s stars</span></div>`);
+  if (r.otherHidden) return el(`<div class="stars"><span class="who-lbl">${name}</span><span class="hint">Rate it first to see ${name}'s rating</span></div>`);
   if (r.other == null) return el(`<div class="stars"><span class="who-lbl">${name}</span><span class="hint">Not rated yet</span></div>`);
   return el(`<div class="stars"><span class="who-lbl">${name}</span><span class="static" aria-label="${r.other} stars">${"★".repeat(r.other)}</span></div>`);
 }

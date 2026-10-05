@@ -92,6 +92,15 @@ describe("telegram webhook", () => {
     expect(deps.sent.at(-1)!.html).toContain("couldn't look it up");
   });
 
+  it("still adds the idea when the photo download fails", async () => {
+    deps = stubDeps();
+    deps.telegram.getFileBytes = async () => Promise.reject(new Error("download failed"));
+    const update = { update_id: 4, message: { message_id: 11, from: { id: 1001 }, chat: { id: 1001 }, caption: "Komodo", photo: [{ file_id: "f", width: 1, height: 1 }] } };
+    await handleUpdate(update, testEnv, deps as Deps);
+    const [row] = await db.listIdeaRows(testEnv.DB);
+    expect(row).toMatchObject({ title: "Diving with mantas", photo_key: null });
+  });
+
   it("rating callback reveals other only after rating", async () => {
     await handleUpdate(msg(1001, "Komodo"), testEnv, deps as Deps);
     const [row] = await db.listIdeaRows(testEnv.DB);

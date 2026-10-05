@@ -79,12 +79,18 @@ export function openEdit(idea) {
     <div class="foot"><button class="btn" data-close>Cancel</button><button class="btn primary" id="e-save">Save</button></div>`, (body) => {
     const v = (id) => body.querySelector(id).value.trim();
     const num = (s) => (s === "" ? null : Number(s));
+    const fail = (text) => { const e = body.querySelector("#e-error"); e.textContent = text; e.hidden = false; };
     body.querySelector("#e-save").addEventListener("click", async () => {
+      const lat = num(v("#e-lat")), lng = num(v("#e-lng")), cost = num(v("#e-cost"));
+      if ((lat === null) !== (lng === null)) return fail("Fill in both latitude and longitude, or leave both empty.");
+      if (lat !== null && !(Number.isFinite(lat) && lat >= -90 && lat <= 90)) return fail("Latitude must be a number between -90 and 90.");
+      if (lng !== null && !(Number.isFinite(lng) && lng >= -180 && lng <= 180)) return fail("Longitude must be a number between -180 and 180.");
+      if (cost !== null && !(Number.isInteger(cost) && cost >= 0)) return fail("Cost must be a whole number of euros.");
       const wild = v("#e-wild") ? v("#e-wild").split(",").map((s) => Number(s.trim())).filter((n) => n >= 1 && n <= 12) : null;
       const patch = {
         title: v("#e-title"), kind: v("#e-kind"), season_basis: v("#e-basis"), description: v("#e-desc") || null,
         region: v("#e-region") || null, country_iso: v("#e-iso").toUpperCase() || null,
-        lat: num(v("#e-lat")), lng: num(v("#e-lng")), cost_pp_day: num(v("#e-cost")), wildlife_months: wild,
+        lat, lng, cost_pp_day: cost, wildlife_months: wild,
       };
       try {
         upsertIdea(await api.updateIdea(idea.id, patch));
@@ -111,6 +117,11 @@ export function openSettings() {
     <div class="foot"><button class="btn" data-close>Cancel</button><button class="btn primary" id="s-save">Save</button></div>`, (body) => {
     body.querySelector("#s-save").addEventListener("click", async () => {
       const v = (id) => body.querySelector(id).value.trim();
+      const whole = (s) => s !== "" && Number.isInteger(Number(s)) && Number(s) >= 0;
+      if (!whole(v("#s-budget")) || !whole(v("#s-flights"))) {
+        const e = body.querySelector("#s-error"); e.textContent = "Budget and flights must be whole numbers of euros."; e.hidden = false;
+        return;
+      }
       try {
         const saved = await api.saveSettings({
           departure_date: v("#s-date") || undefined,

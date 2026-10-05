@@ -3,7 +3,7 @@ import type { Deps } from "../deps";
 import type { IdeaRow, PriceSeason } from "../types";
 import type { InlineButton } from "./api";
 import * as db from "../db";
-import { addIdeasFromText, firstUrl } from "../ideas-service";
+import { addIdeasFromText, firstUrl, PHOTO_DOWNLOAD_MS, withTimeout } from "../ideas-service";
 import { monthMarks, type MonthTemp } from "../logic/weather";
 import { monthRanges } from "../logic/months";
 import { viewRatings } from "../logic/ratings";
@@ -93,9 +93,14 @@ export async function handleUpdate(update: TgUpdate, env: Env, deps: Deps): Prom
   let photoKey: string | null = null;
   if (msg.photo?.length) {
     const largest = msg.photo[msg.photo.length - 1];
-    const bytes = await deps.telegram.getFileBytes(largest.file_id);
-    photoKey = `photos/${crypto.randomUUID()}.jpg`;
-    await env.PHOTOS.put(photoKey, bytes, { httpMetadata: { contentType: "image/jpeg" } });
+    try {
+      const bytes = await withTimeout(deps.telegram.getFileBytes(largest.file_id), PHOTO_DOWNLOAD_MS, "photo download");
+      photoKey = `photos/${crypto.randomUUID()}.jpg`;
+      await env.PHOTOS.put(photoKey, bytes, { httpMetadata: { contentType: "image/jpeg" } });
+    } catch (err) {
+      console.error("photo download failed", err);
+      photoKey = null;
+    }
   }
   if (!input) {
     await deps.telegram.sendMessage(chat, "Add a caption or some text that says which place or activity this is.");
