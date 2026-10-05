@@ -1,0 +1,8 @@
+APP_ENV=dev
+DEV_USER_EMAIL=a@example.com
+APP_URL=http://localhost:8787
+TELEGRAM_BOT_TOKEN=dev
+TELEGRAM_WEBHOOK_SECRET=dev-secret
+ANTHROPIC_API_KEY=sk-ant-dev
+ACCESS_TEAM_DOMAIN=dev.cloudflareaccess.com
+ACCESS_AUD=dev
