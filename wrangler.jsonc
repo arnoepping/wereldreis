@@ -9,7 +9,7 @@
     "run_worker_first": ["/api/*", "/telegram"]
   },
   "d1_databases": [
-    { "binding": "DB", "database_name": "wereldreis", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }
+    { "binding": "DB", "database_name": "wereldreis", "database_id": "0e6217e9-60a7-4a4e-adc1-695b0a25edde", "migrations_dir": "migrations" }
   ],
   "r2_buckets": [{ "binding": "PHOTOS", "bucket_name": "wereldreis-photos" }],
   "vars": { "APP_ENV": "production" }
