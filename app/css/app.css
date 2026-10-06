@@ -51,9 +51,11 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 @media (max-width: 759px) {
   .panel { left: 0; right: 0; bottom: 0; border-radius: 18px 18px 0 0; max-height: 52%; padding-bottom: env(safe-area-inset-bottom, 0px); transition: max-height .3s ease; }
   .panel.collapsed { max-height: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  .panel-head { touch-action: none; }
+  .panel.collapsed .panel-head { cursor: pointer; }
   .brand h1 { font-size: 18px; }
 }
-.grab { border: 0; background: none; padding: 8px 0 0; cursor: pointer; display: flex; justify-content: center; }
+.grab { border: 0; background: none; padding: 10px 0 6px; margin-bottom: -6px; width: 100%; cursor: pointer; display: flex; justify-content: center; touch-action: none; }
 .grab span { width: 40px; height: 4px; border-radius: 4px; background: var(--ink-faint); }
 .panel-head { padding: 14px 18px 12px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
 .panel-head h2 { margin: 0; font: 700 20px/1.2 var(--f-display); text-wrap: balance; }

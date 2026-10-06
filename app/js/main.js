@@ -84,6 +84,22 @@ async function boot() {
   }
 }
 
-document.getElementById("grab").addEventListener("click", () => document.getElementById("panel").classList.toggle("collapsed"));
-if (isPhone()) document.getElementById("panel").classList.add("collapsed");
+// Phone bottom sheet: tap the grab bar to toggle, tap the collapsed header to open, swipe the header up/down to open/close.
+const panel = document.getElementById("panel");
+const sheetHandle = [document.getElementById("grab"), document.getElementById("head")];
+let swipeY = null, swiped = false;
+document.getElementById("grab").addEventListener("click", () => { if (!swiped) panel.classList.toggle("collapsed"); });
+document.getElementById("head").addEventListener("click", () => { if (!swiped && isPhone()) panel.classList.remove("collapsed"); });
+for (const el of sheetHandle) {
+  el.addEventListener("touchstart", (e) => { swipeY = e.touches[0].clientY; swiped = false; }, { passive: true });
+  el.addEventListener("touchmove", (e) => {
+    if (swipeY == null || !isPhone()) return;
+    const dy = e.touches[0].clientY - swipeY;
+    if (Math.abs(dy) < 24) return;
+    panel.classList.toggle("collapsed", dy > 0);
+    swipeY = null; swiped = true;
+    setTimeout(() => (swiped = false), 400);
+  }, { passive: true });
+}
+if (isPhone()) panel.classList.add("collapsed");
 boot();
