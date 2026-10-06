@@ -31,6 +31,15 @@ async function askValid(q, pattern, hint, { hidden = false } = {}) {
 }
 const BOT_TOKEN = [/^\d+:[A-Za-z0-9_-]{30,}$/, "a bot token looks like 123456789:AAH... (from @BotFather)."];
 const APP_URL = [/^https:\/\/[a-z0-9.-]+\/?$/i, "use the full address, e.g. https://wereldreis.yourname.workers.dev"];
+// Checks the key against Anthropic itself rather than guessing from its format.
+async function askAnthropicKey() {
+  for (;;) {
+    const key = await askValid("Anthropic API key (typing stays hidden): ", /^sk-ant-[A-Za-z0-9_-]{20,}$/, "an Anthropic key starts with sk-ant- (console.anthropic.com > API keys).", { hidden: true });
+    const res = await fetch("https://api.anthropic.com/v1/models", { headers: { "x-api-key": key, "anthropic-version": "2023-06-01" } }).catch(() => null);
+    if (res?.ok) return key;
+    console.log(`  Anthropic did not accept this key (${res ? res.status : "no connection"}). Check you copied the whole key, then try again.`);
+  }
+}
 const sh = (cmd, opts = {}) => execSync(cmd, { stdio: ["pipe", "pipe", "inherit"], encoding: "utf8", ...opts });
 const sql = (s) => `'${String(s).replace(/'/g, "''")}'`;
 const d1 = (command) => sh(`npx wrangler d1 execute wereldreis --remote --command ${JSON.stringify(command)}`);
@@ -69,7 +78,7 @@ const steps = {
 
   async secrets() {
     secret("TELEGRAM_BOT_TOKEN", await askValid("Telegram bot token (from @BotFather, typing stays hidden): ", ...BOT_TOKEN, { hidden: true }));
-    secret("ANTHROPIC_API_KEY", await askValid("Anthropic API key (typing stays hidden): ", /^sk-ant-api[A-Za-z0-9_-]{20,}$/, "an API key starts with sk-ant-api (console.anthropic.com > API keys).", { hidden: true }));
+    secret("ANTHROPIC_API_KEY", await askAnthropicKey());
     secret("APP_URL", (await askValid("App address (e.g. https://wereldreis.yourname.workers.dev): ", ...APP_URL)).replace(/\/$/, ""));
     secret("ACCESS_TEAM_DOMAIN", await askValid("Cloudflare Access team domain (e.g. yourteam.cloudflareaccess.com): ", /^[a-z0-9-]+\.cloudflareaccess\.com$/, "only the domain, like yourteam.cloudflareaccess.com, without https://."));
     secret("ACCESS_AUD", await askValid("Access application audience (AUD) tag: ", /^[0-9a-f]{64}$/, "the AUD tag is a 64-character code of digits and a-f."));
