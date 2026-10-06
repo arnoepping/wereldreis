@@ -1,6 +1,8 @@
 {
   "name": "wereldreis",
   "main": "src/index.ts",
+  "workers_dev": true,
+  "preview_urls": false,
   "compatibility_date": "2026-08-22",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
